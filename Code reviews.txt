@@ -1,0 +1,10 @@
+
+1. Created a separate base class - for maintaining the common features for every test case like
+   - Initialize driver
+   - Set Timeout with Implicit wait concept
+
+2. Created a properties file for the URL, can be extended with browser details as well if required.
+
+3. Separate section - Object repository - for Flight, hotel and Sign in - so that they are reusable.
+
+4. Implementing Log4j for logs - found some issues.
