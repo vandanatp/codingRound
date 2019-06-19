@@ -1,89 +1,100 @@
 import com.sun.javafx.PlatformUtil;
+
+
+
+import pageobjects.flightobjects;
+import resources.base;
+
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.List;
 
-public class FlightBookingTest {
-
-    WebDriver driver = new ChromeDriver();
 
 
-    @Test
-    public void testThatResultsAppearForAOneWayJourney() {
+public class FlightBookingTest extends base {
+	
+	
+	@BeforeTest
+	
+	public void initialize() throws IOException
+	{
+		
+		 driver =setDriverPath();
+			
+		driver.get(prop.getProperty("url"));
+	}
 
-        setDriverPath();
-        driver.get("https://www.cleartrip.com/");
-        waitFor(2000);
-        driver.findElement(By.id("OneWay")).click();
 
-        driver.findElement(By.id("FromTag")).clear();
-        driver.findElement(By.id("FromTag")).sendKeys("Bangalore");
+	
+	@Test
+    public void testThatResultsAppearForAOneWayJourney() throws InterruptedException {
 
-        //wait for the auto complete options to appear for the origin
+                
+        flightobjects fo = new flightobjects(driver);
+        
+        fo.oneway().click();
+        
+        fo.source().sendKeys("Bangalore");
+        
+        List<WebElement> sourceoptions =driver.findElement(By.id("ui-id-1")).findElements(By.tagName("li"));
+        
+        for(WebElement suggest : sourceoptions)
+        {
+        	if(suggest.getText().equalsIgnoreCase("Bangalore, IN - Kempegowda International Airport (BLR)"))
+        	{
+        		suggest.click();
+        	}
+        }
+       
+        fo.destination().sendKeys("Delhi");
+        
+        List<WebElement> destinationoptions = driver.findElement(By.id("ui-id-2")).findElements(By.tagName("li"));
+        
+        for(WebElement suggest1 : destinationoptions)
+        {
+        	if(suggest1.getText().equalsIgnoreCase("New Delhi, IN - Indira Gandhi Airport (DEL)"))
+        	{
+        		suggest1.click();
+        	}
+        }
+        
+        fo.date().click();
+        
+        fo.currentdate().click();        
+        
+        fo.search().click();
+       
+        Assert.assertTrue(fo.searchsummary().isDisplayed());
+        
+       
 
-        waitFor(2000);
-        List<WebElement> originOptions = driver.findElement(By.id("ui-id-1")).findElements(By.tagName("li"));
-        originOptions.get(0).click();
+    } 
 
-        driver.findElement(By.id("toTag")).clear();
-        driver.findElement(By.id("toTag")).sendKeys("Delhi");
-
-        //wait for the auto complete options to appear for the destination
-
-        waitFor(2000);
-        //select the first item from the destination auto complete list
-        List<WebElement> destinationOptions = driver.findElement(By.id("ui-id-2")).findElements(By.tagName("li"));
-        destinationOptions.get(0).click();
-
-        driver.findElement(By.xpath("//*[@id='ui-datepicker-div']/div[1]/table/tbody/tr[3]/td[7]/a")).click();
-
-        //all fields filled in. Now click on search
-        driver.findElement(By.id("SearchBtn")).click();
-
-        waitFor(5000);
-        //verify that result appears for the provided journey search
-        Assert.assertTrue(isElementPresent(By.className("searchSummary")));
-
-        //close the browser
-        driver.quit();
+	@AfterTest
+	
+	public void teardown()
+	{
+		
+		driver.quit();
+		driver=null;
+		
+	}
 
     }
 
 
-    private void waitFor(int durationInMilliSeconds) {
-        try {
-            Thread.sleep(durationInMilliSeconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-    }
+  
 
-
-    private boolean isElementPresent(By by) {
-        try {
-            driver.findElement(by);
-            return true;
-        } catch (NoSuchElementException e) {
-            return false;
-        }
-    }
-
-    private void setDriverPath() {
-        if (PlatformUtil.isMac()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver");
-        }
-        if (PlatformUtil.isWindows()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        }
-        if (PlatformUtil.isLinux()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver_linux");
-        }
-    }
-}

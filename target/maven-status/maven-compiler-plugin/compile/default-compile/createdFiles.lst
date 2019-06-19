@@ -1,0 +1,7 @@
+FlightBookingTest.class
+pageobjects\flightobjects.class
+HotelBookingTest.class
+resources\base.class
+SignInTest.class
+pageobjects\loginobjects.class
+pageobjects\hotelobjects.class
